@@ -1,0 +1,21 @@
+geonames_field_description = {
+    0: 'geonameid',
+    1: 'name',
+    2: 'ascii name',
+    3: 'alternate names',
+    4: 'latitude',
+    5: 'longitude',
+    6: 'feature class',
+    7: 'feature code',
+    8: 'country code',
+    9: 'cc2',
+    10: 'admin1 code',
+    11: 'admin2 code',
+    12: 'admin3 code',
+    13: 'admin4 code',
+    14: 'population',
+    15: 'elevation',
+    16: 'dem',
+    17: 'timezone',
+    18: 'modification date'
+}
