@@ -9,7 +9,7 @@
 |sary          =
 }}
 
-'''%(name)s''' dia tanàna ao amin'ny prefektioran'i [[%(mapped_admin1 code)s]] ao amin'ny [[%(country)s]].
+'''%(name)s''' dia tanàna ao amin'ny %(adm1_name_poss)s [[%(mapped_admin1 code)s]] ao amin'ny [[%(country)s]].
 
 == Jeografia ==
 Ny isam-ponina dia %(population)s mponina tamin'ny taona %(mapped_modification date)s.<ref name='geocities'>[http://download.geonames.org/export/ %(country_short)s] ao amin'i geonames.org, novangiana ny %(today)s </ref>
@@ -27,4 +27,4 @@ Ny isam-ponina dia %(population)s mponina tamin'ny taona %(mapped_modification d
 {{vangovango|%(country_short)s}}
 
 [[sokajy:Tanàna ao %(country_short)s]]
-[[sokajy:Tanàna ao amin'ny prefektioran'i %(mapped_admin1 code)s]]
+[[sokajy:Tanàna ao amin'ny %(adm1_name_poss)s %(mapped_admin1 code)s]]

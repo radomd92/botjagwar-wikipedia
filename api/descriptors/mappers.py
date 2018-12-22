@@ -8,7 +8,7 @@ admin_code = {}
 
 def fill_admin_codes():
     for csv_filename in ['admin2Codes.txt', 'admin1CodesASCII.txt']:
-        csv_file = open(csv_filename, 'r')
+        csv_file = open('country_data/' + csv_filename, 'r')
         file_reader = csv.reader(csv_file, 'excel-tab')
         for line in file_reader:
             admin_code[line[0]] = line[1]

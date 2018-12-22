@@ -1,8 +1,9 @@
 import copy
 import csv
-import datetime
+import sys
 import re
 import pywikibot
+from api.descriptors.additional_data import country_contexts
 
 from api.descriptors import geonames_field_description as field_description
 from api.descriptors.mappers import \
@@ -43,22 +44,38 @@ def get_populated_places(csv_filename, additional_data):
     csv_file.close()
 
 
-def main():
+def create_admin1_pages(country_code):
     fill_admin_codes()
     c = 0
-    today = datetime.datetime.now()
-    additional_data = {
-        'country': "Japana",
-        'country_short': "Japana",
-        'today': '%d/%2d/%4d' % (today.day, today.month, today.year)
-    }
+    additional_data = country_contexts[country_code]
+    admin1_codes = []
+    for d in get_populated_places('%s.csv' % country_code, additional_data):
+        admin1_codes.append(d['mapped_admin1 code'])
+        c += 1
+        d['wiki_name'] = d['name'].replace('City', '(tanàna)')
+        pywikibot.output('>>>>>> \03{white} #' + str(c) + ' -- ' + d['wiki_name'] + '\03{default} <<<<<<')
 
-    for d in get_populated_places('JP.csv', additional_data):
+    for name in set(admin1_codes):
+        if not name:
+            continue
+        guo = additional_data['country_short']
+        lim = name[0]
+        adm1_name_poss = additional_data['adm1_name_poss']
+        page = pywikibot.Category(pywikibot.Site('mg', 'wikipedia'), f"Tanàna ao amin'ny {adm1_name_poss} {name}")
+        c = f"[[sokajy:Tanàna ao {guo}|{lim}]]\n[[sokajy:{guo}|{lim}]]"
+        print(page)
+
+
+def create_wikipedia_article(country_code):
+    fill_admin_codes()
+    c = 0
+    additional_data = country_contexts[country_code]
+    for d in get_populated_places('country_data/' + '%s.csv' % country_code, additional_data):
         if (d['feature class'] == 'P'
-                and 70000 > int(d['population']) > 60000
-                #and d['mapped_admin1 code'] == 'Shandong'
+            and int(d['population']) >= 5000
         ):
             c += 1
+            d['wiki_name'] = d['name'].replace('City of', "Tanànan'i")
             d['wiki_name'] = d['name'].replace('City', '(tanàna)')
             pywikibot.output('>>>>>> \03{white} #' + str(c) + ' -- ' + d['wiki_name'] + '\03{default} <<<<<<')
             content = to_wikipedia_article(d)
@@ -95,4 +112,6 @@ def add_coord(d):
 
 
 if __name__ == '__main__':
-    main()
+    country = sys.argv[1]
+    create_admin1_pages(country)
+    create_wikipedia_article(country)
