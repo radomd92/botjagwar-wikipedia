@@ -30,7 +30,8 @@ def convert_date(field_no):
 def get_admin1_code(described_line):
     key = (described_line['country code']
            + '.' + described_line['admin1 code'])
-    return admin_code.get(key, described_line['admin1 code'])
+    mapped = admin_code.get(key, described_line['admin1 code'])
+    return mapped
 
 
 def get_admin2_code(described_line):
@@ -39,5 +40,15 @@ def get_admin2_code(described_line):
            + '.' + described_line['admin2 code'])
 
     mapped = admin_code.get(key, described_line['admin2 code'])
-
     return mapped
+
+
+def get_admin1_code_translation(described_line):
+    if described_line['translations']:
+        translations = dict(described_line['translations'])
+        if described_line['mapped_admin1 code'] in translations:
+            return translations[described_line['mapped_admin1 code']]
+        else:
+            return described_line['mapped_admin1 code']
+    else:
+        return described_line['mapped_admin1 code']

@@ -11,14 +11,16 @@ class State(object):
     adm1_name_poss = None
     country = None
     country_short = None
+    translations = []
 
-    def __init__(self, country, country_short=SAME,
+    def __init__(self, country='', country_short=SAME,
                  adm1_name=DEFAULT, adm1_name_poss=DEFAULT):
-        self.country = country
-        if country_short == SAME:
-            self.country_short = country
-        else:
-            self.country_short = country_short
+        if self.country is None:
+            self.country = country
+            if country_short == SAME:
+                self.country_short = self.country
+            else:
+                self.country_short = country_short
 
         self.adm1_name = (
             adm1_name
@@ -33,6 +35,7 @@ class State(object):
 
     def serialise(self) -> dict:
         return {
+            'translations': self.translations,
             'country_code': self.country_code,
             'adm1_name': self.adm1_name,
             'adm1_name_poss': self.adm1_name_poss,
@@ -62,13 +65,19 @@ class PrefectureState(State):
     adm1_name_poss = "prefektioran'i"
 
 
+from api.descriptors.additional_data.countries import (
+    Australia, Indonesia
+)
+
+
 countries = {
-    'AU': FederalState('Aostralia'),
+    'AU': Australia(),
     'BR': FederalState('Brazila'),
     'CN': ProvinceState('Sina', "Repoblika Entim-bahoakan'i Sina"),
     'ES': RegionState('Espaina'),
     'IN': FederalState('India'),
-    'ID': ProvinceState('Indonesia'),
+    'IT': RegionState('Italia'),
+    'ID': Indonesia(),
     'JP': PrefectureState('Japana'),
     'MG': RegionState('Madagasikara'),
     'MZ': ProvinceState('Mozambika'),
