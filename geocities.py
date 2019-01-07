@@ -3,12 +3,18 @@ import csv
 import sys
 import re
 import pywikibot
+
 from api.descriptors.additional_data import country_contexts
-
 from api.descriptors import geonames_field_description as field_description
-from api.descriptors.mappers import \
-    type_cast, convert_date, get_admin1_code, get_admin2_code, fill_admin_codes
-
+from api.descriptors.mappers import (
+    type_cast,
+    convert_date,
+    get_admin1_code,
+    get_admin1_code_translation,
+    get_admin2_code,
+    fill_admin_codes
+)
+from api.decorator import retry_on_fail
 
 TEMPLATE = open('wikipedia.template', 'r').read()
 
@@ -25,6 +31,10 @@ field_mappers = {
     18: convert_date(18)
 }
 
+field_translators = {
+    10: get_admin1_code_translation
+}
+
 
 def get_populated_places(csv_filename, additional_data):
     csv_file = open(csv_filename, 'r')
@@ -39,6 +49,10 @@ def get_populated_places(csv_filename, additional_data):
                 mapped_data = field_mappers[column_nb](described_data)
                 described_data['mapped_' + field_description[column_nb]] = mapped_data
 
+            if column_nb in field_translators:
+                mapped_data = field_translators[column_nb](described_data)
+                described_data['mapped_' + field_description[column_nb]] = mapped_data
+
         yield described_data
 
     csv_file.close()
@@ -49,7 +63,9 @@ def create_admin1_pages(country_code):
     c = 0
     additional_data = country_contexts[country_code]
     admin1_codes = []
-    for d in get_populated_places('%s.csv' % country_code, additional_data):
+    for d in get_populated_places(
+            'country_data/' + '%s.csv' % country_code,
+            additional_data):
         admin1_codes.append(d['mapped_admin1 code'])
         c += 1
         d['wiki_name'] = d['name'].replace('City', '(tanàna)')
@@ -58,22 +74,22 @@ def create_admin1_pages(country_code):
     for name in set(admin1_codes):
         if not name:
             continue
+
         guo = additional_data['country_short']
         lim = name[0]
         adm1_name_poss = additional_data['adm1_name_poss']
         page = pywikibot.Category(pywikibot.Site('mg', 'wikipedia'), f"Tanàna ao amin'ny {adm1_name_poss} {name}")
         c = f"[[sokajy:Tanàna ao {guo}|{lim}]]\n[[sokajy:{guo}|{lim}]]"
-        print(page)
+        print(page, c)
+        page.put(c, 'mamorona sokajy')
 
 
-def create_wikipedia_article(country_code):
+def create_wikipedia_article(country_code, feature_class='P'):
     fill_admin_codes()
     c = 0
     additional_data = country_contexts[country_code]
     for d in get_populated_places('country_data/' + '%s.csv' % country_code, additional_data):
-        if (d['feature class'] == 'P'
-            and int(d['population']) >= 5000
-        ):
+        if d['feature class'] == feature_class and int(d['population']) > 5000:
             c += 1
             d['wiki_name'] = d['name'].replace('City of', "Tanànan'i")
             d['wiki_name'] = d['name'].replace('City', '(tanàna)')
@@ -82,14 +98,19 @@ def create_wikipedia_article(country_code):
             pywikibot.output('\03{yellow}' + content + '\03{default}')
             create_wikipedia_entry(d)
 
+    print(c)
+
 
 def create_wikipedia_entry(d):
     page = pywikibot.Page(pywikibot.Site('mg', 'wikipedia'), d['wiki_name'])
     if page.exists() and not page.isRedirectPage():
-        return
+        try:
+            link_wikidata(d)
+        except Exception:
+            return
 
     content = to_wikipedia_article(d)
-    page.put(content, "tanàna ao amin'i %s" % d['mapped_admin1 code'])
+    #page.put(content, "tanàna ao amin'i %s" % d['mapped_admin1 code'])
 
 
 def add_coord(d):
@@ -109,6 +130,28 @@ def add_coord(d):
             page.put(content, "tanàna ao %s" % d['mapped_admin1 code'])
     else:
         print('pejy tsy misy')
+
+
+@retry_on_fail(Exception, 5, 5)
+def link_wikidata(d):
+    site = pywikibot.Site('ceb', 'wikipedia')
+    page = pywikibot.Page(site, d['wiki_name'])
+    if not page.exists():
+        print('No exists')
+        return
+
+    try:
+        item = pywikibot.ItemPage.fromPage(page)  # this can be used for any page object
+    except Exception:
+        return
+
+    # you can also define an item like this
+    item.get()  # you need to call it to access any data.
+    if 'mg' in item.labels:
+        print('The label in Malagasy is: ' + item.labels['en'])
+    else:
+        print('No label in Malagasy...')
+        item.setSitelink(sitelink={'site': 'mgwiki', 'title': d['wiki_name']}, summary=u'added link to mg.wikipedia')
 
 
 if __name__ == '__main__':
