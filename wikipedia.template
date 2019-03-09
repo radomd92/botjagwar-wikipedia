@@ -2,7 +2,7 @@
 {{infobox tanàna
 |anarana       = %(name)s
 |velarantany   =
-|faritany      = [[%(mapped_admin1 code)s]]
+|faritany      = [[%(adm1_name_poss)s %(mapped_admin1 code)s|%(mapped_admin1 code)s]]
 |isam-ponina   = %(population)s
 |firenena      = {{%(country_short)s}}
 |ben'ny tanàna =

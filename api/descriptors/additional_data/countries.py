@@ -30,6 +30,14 @@ class Indonesia(ProvinceState):
     ]
 
 
+class UnitedArabEmirates(FederalState):
+    country = 'Emira Arabo Mitambatra'
+    country_short = 'Emira Arabo Mitambatra'
+    adm1_name = 'emirà'
+    adm1_name_poss = "emiràn'i"
+
+
+
 class Australia(FederalState):
     country = "Aostralia"
     country_short = "Aostralia"

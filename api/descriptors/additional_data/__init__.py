@@ -60,28 +60,40 @@ class RegionState(State):
     adm1_name_poss = "faritra"
 
 
+class DistrictState(State):
+    adm1_name = 'distrika'
+    adm1_name_poss = "distrikan'i"
+
+
 class PrefectureState(State):
     adm1_name = 'prefektiora'
     adm1_name_poss = "prefektioran'i"
 
 
 from api.descriptors.additional_data.countries import (
-    Australia, Indonesia
+    Australia, Indonesia, UnitedArabEmirates
 )
 
-
 countries = {
+    'AE': UnitedArabEmirates(),
+    'AR': ProvinceState('Arjentina'),
+    'AT': FederalState('Aotrisy'),
+    'AZ': DistrictState('Azerbaijana'),
     'AU': Australia(),
     'BR': FederalState('Brazila'),
     'CN': ProvinceState('Sina', "Repoblika Entim-bahoakan'i Sina"),
+    'EG': RegionState('Ejipta'),
     'ES': RegionState('Espaina'),
     'IN': FederalState('India'),
     'IT': RegionState('Italia'),
     'ID': Indonesia(),
+    'IR': PrefectureState('Iràna'),
     'JP': PrefectureState('Japana'),
     'MG': RegionState('Madagasikara'),
     'MZ': ProvinceState('Mozambika'),
     'PT': ProvinceState('Pôrtogaly'),
+    'TH': ProvinceState('Tailandy'),
+    'UY': RegionState('Orogoay'),
     'ZA': ProvinceState('Afrika Atsimo')
 }
 

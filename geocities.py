@@ -89,7 +89,7 @@ def create_wikipedia_article(country_code, feature_class='P'):
     c = 0
     additional_data = country_contexts[country_code]
     for d in get_populated_places('country_data/' + '%s.csv' % country_code, additional_data):
-        if d['feature class'] == feature_class and int(d['population']) > 5000:
+        if d['feature class'] == feature_class and int(d['population']) >= 40000:
             c += 1
             d['wiki_name'] = d['name'].replace('City of', "Tanànan'i")
             d['wiki_name'] = d['name'].replace('City', '(tanàna)')
@@ -103,15 +103,15 @@ def create_wikipedia_article(country_code, feature_class='P'):
 
 def create_wikipedia_entry(d):
     page = pywikibot.Page(pywikibot.Site('mg', 'wikipedia'), d['wiki_name'])
+
+    content = to_wikipedia_article(d)
+    page.put(content, "tanàna ao amin'i %s" % d['mapped_admin1 code'])
     if page.exists() and not page.isRedirectPage():
         try:
             link_wikidata(d)
-        except Exception:
+        except Exception as e:
+            print(e)
             return
-
-    content = to_wikipedia_article(d)
-    #page.put(content, "tanàna ao amin'i %s" % d['mapped_admin1 code'])
-
 
 def add_coord(d):
     page = pywikibot.Page(pywikibot.Site('mg', 'wikipedia'), d['name'])
