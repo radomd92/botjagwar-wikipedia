@@ -18,6 +18,7 @@ from api.decorator import retry_on_fail
 
 TEMPLATE = open('wikipedia.template', 'r').read()
 
+visited = {}
 
 def to_wikipedia_article(described_data):
     return TEMPLATE % described_data
@@ -72,7 +73,7 @@ def create_admin1_pages(country_code):
         pywikibot.output('>>>>>> \03{white} #' + str(c) + ' -- ' + d['wiki_name'] + '\03{default} <<<<<<')
 
     for name in set(admin1_codes):
-        if not name:
+        if not name or name in '1234567890':
             continue
 
         guo = additional_data['country_short']
@@ -102,8 +103,13 @@ def create_wikipedia_article(country_code, feature_class='P'):
 
 
 def create_wikipedia_entry(d):
-    page = pywikibot.Page(pywikibot.Site('mg', 'wikipedia'), d['wiki_name'])
+    if d['wiki_name'] not in visited:
+        title = d['wiki_name']
+    else:
+        title = d['wiki_name'] + ' (%s)' % d['mapped_admin1 code']
 
+    visited[d['wiki_name']] = title
+    page = pywikibot.Page(pywikibot.Site('mg', 'wikipedia'), title)
     content = to_wikipedia_article(d)
     page.put(content, "tanàna ao amin'i %s" % d['mapped_admin1 code'])
     if page.exists() and not page.isRedirectPage():
@@ -156,5 +162,5 @@ def link_wikidata(d):
 
 if __name__ == '__main__':
     country = sys.argv[1]
-    create_admin1_pages(country)
+    #create_admin1_pages(country)
     create_wikipedia_article(country)
